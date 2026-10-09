@@ -1,0 +1,119 @@
+openapi: 3.0.1
+info:
+  title: Insurance Customer API
+  description: Customer-facing mock insurance API (policy lookup, claims list, claim submission). Paths are relative to the /insurance/customer base path.
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema: {type: object, properties: {status: {type: string, example: UP}}}
+  /policy:
+    post:
+      operationId: getPolicy
+      summary: Get policy details for a username (email)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/UsernameRequest"}
+      responses:
+        "200":
+          description: Policy details, or an error message when no policy exists
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "#/components/schemas/PolicyResponse"}
+                  - {$ref: "#/components/schemas/ErrorResponse"}
+  /claims:
+    post:
+      operationId: getClaims
+      summary: List claims for a username (email)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/UsernameRequest"}
+      responses:
+        "200":
+          description: Claims, or an error message when no policy exists
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {type: array, items: {$ref: "#/components/schemas/Claim"}}
+                  - {$ref: "#/components/schemas/ErrorResponse"}
+  /claims/submit:
+    post:
+      operationId: submitClaim
+      summary: Submit a new claim (policy must be ACTIVE)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ClaimSubmitRequest"}
+      responses:
+        "200":
+          description: Submission result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "#/components/schemas/SuccessResponse"}
+                  - {$ref: "#/components/schemas/ErrorResponse"}
+components:
+  schemas:
+    UsernameRequest:
+      type: object
+      required: [username]
+      properties:
+        username: {type: string, example: sam@gmail.com}
+    ClaimSubmitRequest:
+      type: object
+      required: [username, claimType, amount, description]
+      properties:
+        username: {type: string, example: sam@gmail.com}
+        claimType: {type: string, example: Outpatient, description: "Outpatient, Hospitalization, Emergency, Pharmacy, DME, Medical"}
+        amount: {type: number, example: 250.00}
+        description: {type: string, example: GP consultation}
+    PolicyResponse:
+      type: object
+      required: [policyNumber, policyType, coverageAmount, premiumAmount, startDate, endDate, status]
+      properties:
+        policyNumber: {type: string, example: POL-HEALTH-001}
+        policyType: {type: string, example: HEALTH}
+        coverageAmount: {type: number, example: 100000.00}
+        premiumAmount: {type: number, example: 120.00}
+        startDate: {type: string, example: "2024-01-01"}
+        endDate: {type: string, example: "2025-01-01"}
+        status: {type: string, enum: [ACTIVE, EXPIRED, SUSPENDED]}
+        organization: {type: string, description: Set only for B2B partner-organization employees}
+    Claim:
+      type: object
+      required: [claimId, claimType, amount, description, submittedDate, status]
+      properties:
+        claimId: {type: string, example: CLM-001}
+        claimType: {type: string, example: Hospitalization}
+        amount: {type: number, example: 3200.00}
+        description: {type: string}
+        submittedDate: {type: string, example: "2024-03-10"}
+        status: {type: string, enum: [PENDING, APPROVED, REJECTED]}
+    SuccessResponse:
+      type: object
+      required: [message, success]
+      properties:
+        message: {type: string}
+        success: {type: boolean, enum: [true]}
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message: {type: string}
+        errorCode: {type: string, nullable: true}

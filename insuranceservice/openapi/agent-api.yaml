@@ -1,0 +1,122 @@
+openapi: 3.0.1
+info:
+  title: Insurance Agent API
+  description: Insurer-staff (agent/admin) mock insurance API. Paths are relative to the /insurance/agent base path.
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema: {type: object, properties: {status: {type: string, example: UP}}}
+  /policies:
+    get:
+      operationId: listPolicies
+      summary: List all policies
+      responses:
+        "200":
+          description: All policies
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/InsurancePolicy"}}
+  /policy/update:
+    post:
+      operationId: updatePolicy
+      summary: Update a policy's status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PolicyUpdateRequest"}
+      responses:
+        "200":
+          description: Update result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "#/components/schemas/SuccessResponse"}
+                  - {$ref: "#/components/schemas/ErrorResponse"}
+  /claims:
+    get:
+      operationId: listClaims
+      summary: List every claim across all policyholders, PENDING first
+      responses:
+        "200":
+          description: All claims
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/AgentClaim"}}
+  /claim/update:
+    post:
+      operationId: updateClaim
+      summary: Update a claim's status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ClaimUpdateRequest"}
+      responses:
+        "200":
+          description: Update result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "#/components/schemas/SuccessResponse"}
+                  - {$ref: "#/components/schemas/ErrorResponse"}
+components:
+  schemas:
+    InsurancePolicy:
+      type: object
+      required: [username, policyNumber, policyType, coverageAmount, premiumAmount, startDate, endDate, status]
+      properties:
+        username: {type: string}
+        policyNumber: {type: string}
+        policyType: {type: string}
+        coverageAmount: {type: number}
+        premiumAmount: {type: number}
+        startDate: {type: string}
+        endDate: {type: string}
+        status: {type: string, enum: [ACTIVE, EXPIRED, SUSPENDED]}
+        organization: {type: string}
+    AgentClaim:
+      type: object
+      required: [username, claimId, claimType, amount, description, submittedDate, status]
+      properties:
+        username: {type: string}
+        claimId: {type: string}
+        claimType: {type: string}
+        amount: {type: number}
+        description: {type: string}
+        submittedDate: {type: string}
+        status: {type: string, enum: [PENDING, APPROVED, REJECTED]}
+    PolicyUpdateRequest:
+      type: object
+      required: [policyNumber, status]
+      properties:
+        policyNumber: {type: string, example: POL-HEALTH-001}
+        status: {type: string, enum: [ACTIVE, EXPIRED, SUSPENDED]}
+    ClaimUpdateRequest:
+      type: object
+      required: [claimId, status]
+      properties:
+        claimId: {type: string, example: CLM-001}
+        status: {type: string, enum: [PENDING, APPROVED, REJECTED]}
+    SuccessResponse:
+      type: object
+      required: [message, success]
+      properties:
+        message: {type: string}
+        success: {type: boolean, enum: [true]}
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message: {type: string}
+        errorCode: {type: string, nullable: true}

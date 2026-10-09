@@ -1,0 +1,35 @@
+# WSO2 Cloud - Integration Platform (Devant) source configuration.
+# Declares the three listeners in this package as separately manageable
+# endpoints (each gets its own URL, lifecycle and security settings).
+# All three ports are in 8080-8089, so scale-to-zero still works.
+schemaVersion: 1.2
+endpoints:
+  - name: insurance-customer-api
+    displayName: Insurance Customer API
+    service:
+      basePath: /insurance/customer
+      port: 8082
+    type: REST
+    networkVisibilities:
+      - Public
+    schemaFilePath: openapi/customer-api.yaml
+  - name: insurance-agent-api
+    displayName: Insurance Agent API
+    service:
+      basePath: /insurance/agent
+      port: 8083
+    type: REST
+    networkVisibilities:
+      - Public
+    schemaFilePath: openapi/agent-api.yaml
+  # MCP over Streamable HTTP (POST/GET/DELETE on /mcp). No schemaFilePath on
+  # purpose: the default wildcard route forwards every method/sub-path to the
+  # MCP listener unchanged. This is the endpoint Agent Manager proxies.
+  - name: insurance-mcp
+    displayName: Insurance MCP Server
+    service:
+      basePath: /mcp
+      port: 8084
+    type: REST
+    networkVisibilities:
+      - Public

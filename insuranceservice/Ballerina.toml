@@ -1,0 +1,16 @@
+[package]
+org = "ramindu"
+name = "insuranceservice"
+version = "0.1.0"
+distribution = "2201.13.4"
+title = "InsuranceService"
+
+# Pinned to the same version the k8s mock_insurance_backend runs, so the
+# mcp:StreamableHttpListener API used in mcp_server.bal stays identical.
+[[dependency]]
+org = "ballerina"
+name = "mcp"
+version = "1.2.0"
+
+[build-options]
+sticky = true
