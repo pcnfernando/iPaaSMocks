@@ -1,0 +1,15 @@
+[package]
+org = "ramindu"
+name = "insurancemcp"
+version = "0.1.0"
+distribution = "2201.13.4"
+title = "InsuranceMCP"
+
+# Same version the k8s mock_insurance_backend runs (mcp:StreamableHttpListener API).
+[[dependency]]
+org = "ballerina"
+name = "mcp"
+version = "1.2.0"
+
+[build-options]
+sticky = true
